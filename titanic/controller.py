@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0,'/Users/jongm/SBAprojects')
 from titanic.service import Service
 from titanic.entity import Entity
 
@@ -6,11 +8,11 @@ class Controller:
         self.service = Service()
         self.entity = Entity()
 
-    def preprocessing(self):
+    def preprocessing(self,train,test):
         service = self.service
-        this - self.entity
+        this = self.entity
         this.train = service.new_model(train)  #payload
-        this.test = service.new_model(test)
+        this.test = service.new_model(test)  #payload
         return this
 
     def modeling(self,train,test):

@@ -1,6 +1,9 @@
+import sys
+sys.path.insert(0,'/Users/jongm/SBAprojects')
 from titanic.entity import Entity
 import pandas as pd
 import numpy as np 
+
 
 """
 PassengerId  고객ID,
@@ -23,16 +26,16 @@ class Service:
     
     def new_model(self,payload):
         this = self.entity
-        this.context = './data'
+
         this.fname = payload
         return pd.read_csv(this.context + this.fname)   # 교과서 p.139  df = tensor
 
-    @staticmethod
-    def create_train(this): ->object
+    @staticmethod 
+    def create_train(this) -> object :
         return this.train.drop('Survived', axis = 1)  # train은 답이 제거된 데이터셋
 
     @staticmethod
-    def create_label(this): -> object
+    def create_label(this) -> object :
         return this.train['Survived'] # label - 답        feature=variables
 
     @staticmethod
