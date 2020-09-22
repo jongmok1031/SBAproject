@@ -1,4 +1,11 @@
 # url, parser, path, api, apikey -> all str type
+from dataclasses import dataclass
+
+@dataclass
 class Entity:
-    def __init__(self):
-        pass
+    
+    url: str = '/Users/jongm/SBAprojects/titanic/data/'
+    parser: str = ''
+    path: str = ''
+    api: str = ''
+    apikey: str = ''
