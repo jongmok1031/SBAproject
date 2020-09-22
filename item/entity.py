@@ -9,14 +9,7 @@ class Entity:
     test: object
     id: str
     label: str
-    
-    # def __init__(self,context,fname,train,test,id,label):
-    #     self._context = context # _ 1개는 default 접근을 의미, __ 2개는 private 접근을 의미한다
-    #     self._fname = fname
-    #     self._train = train
-    #     self._test = test
-    #     self._id = id
-    #     self._label = label
+
     @property     
     def context(self) -> str:
         return self._context
