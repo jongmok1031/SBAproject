@@ -1,0 +1,40 @@
+variable (변하는 상태) vs constant (변하지 않는 상태)
+
+그중에서 variable은  분류 가능
+
+이분하면
+categorical , numeric (=number)
+categorical : ordinal(오더 있어) , nominal 오더 없어
+ 
+
+결국
+ordinal numeric nominal
+
+null 값
+fillna == sklearn.preprocesing -Imputer
+imp = Imputer(missing_Values = 'Nan', strategy = 'mean',axis = 0)
+fillna
+
+변수명 ['변수명']  변수값 {'변수명':'변수값'}
+
+
+    @staticmethod
+    def sex_nominal(this) ->object:
+        this.train['sex'] = this.train['sex'].map({'male':0, 'female':1})
+        this.test['sex'] = this.test['sex'].map({'male':0, 'female':1})
+        return this
+
+코딩은 반복된 코드 싫어
+for() while() 의 존재이유
+    @staticmethod
+    def sex_nominal(this) ->object:
+        combine = [this.train, this.test]
+        sex_mapping = {'male':0, 'female':1}
+        for dataset in combine:
+            dataset['Sex'] = dataset['Sex'].map(sex_mapping)
+
+        this.train = this.train #overriding
+        this.test = this.test 
+        return this
+
+

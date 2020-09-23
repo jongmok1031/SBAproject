@@ -118,3 +118,59 @@ class Service:
         myframe.to_csv(filename, encoding='utf-8',index=False)
         print(filename+'파일이 저장됨')
         print('finished')
+
+#     def frommovie(soup,tag,class_attrs,mycol):
+        
+# tags = soup.findAll('div', attrs={'class':'tit3'})
+# # print(tags)
+# for tag in tags:
+#     print(tag.a.string)
+# print('**************************')
+# print('<a> 태그의 href 전체 태그')
+# url_header = 'https://movie.naver.com'
+# for tag in tags:
+#     print(url_header + tag.a['href'])
+
+# mytrs = soup.find_all('tr')
+# print(len(mytrs))
+
+# no=0 #순서를 의미하는 번호
+# total_list = [] # 전체를 저장할 리스트
+
+# for one_tr in mytrs:
+#     title = ''
+#     up_down = ''
+#     mytd = one_tr.find('td',attrs = {'class':'title'})
+#     if mytd != None:
+#         no+=1
+#         newno = str(no).zfill(2)
+
+#         mytag = mytd.find('div',attrs = {'class':'tit3'})
+#         #.string속성 : 해당 태그가 갖고 있는 문자열 출력
+#         title = mytag.a.string
+
+#         # td 태그 중에서 3번쨰 요소를 찾기
+#         mytd = one_tr.select_one('td:nth-of-type(3)')
+#         myimg = mytd.find('img')
+#         if myimg.attrs['alt'] == 'up':
+#             up_down='상승'
+#         elif myimg.attrs['alt'] == 'down':
+#             up_down = '강등'
+#         else:
+#             up_down = '불변'
+
+#         change = one_tr.find('td', attrs={'class':'range ac'})
+#         change = change.string
+
+#         #print(newno + '/' + title + '/' + up_down + '/' + change)
+#         total_list.append((newno,title,up_down,change))
+
+# mycol = ['순위','제목','변동','변동값']
+# mydataframe = pd.DataFrame(total_list, columns= mycol)
+
+# filename = 'naverMovie.csv'
+# mydataframe.to_csv(filename, encoding='utf-8',index=False)
+
+# print(mydataframe.head(5))
+# print(filename +'저장')
+# print('finished')
