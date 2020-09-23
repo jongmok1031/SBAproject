@@ -4,7 +4,17 @@ from titanic.entity import Entity
 import pandas as pd
 import numpy as np 
 
+# sklearn algo: classification, regression, clustering, dim-reduction, 
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
 
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold   # k 값은 count의 의미
+from sklearn.model_selection import cross_val_score
+# dtree,rforest,nb,knn,svm
 """
 PassengerId  고객ID, @@@문제
 Survived 생존여부,  @@@답
@@ -65,12 +75,20 @@ class Service:
             dataset['Title'] = dataset['Title'].replace(['Countess','Lady','Sir'], 'Royal')
             dataset['Title'] = dataset['Title'].replace('Ms','Miss')
             dataset['Title'] = dataset['Title'].replace('Mlle','Mr')
-        title_mapping = {'Mr':1,'Miss':2,'Mrs':3,'Master':4,'Royal':5,'Rare':6}
+        title_mapping = {
+            'Mr':1,
+            'Miss':2,
+            'Mrs':3,
+            'Master':4,
+            'Royal':5,
+            'Rare':6
+            }
         for dataset in combine: 
-            dataset['Title'] = dataset['Title'],map(title_mapping)
+            dataset['Title'] = dataset['Title'].map(title_mapping)
             dataset['Title'] = dataset['Title'].fillna(0) #Unknown
         this.train = this.train
         this.test = this.test
+        
         return this
 
     @staticmethod
@@ -85,39 +103,53 @@ class Service:
         return this
     
     @staticmethod
-    def age_ordinal(this)->object:
+    def age_ordinal(this) -> object:
         train = this.train
         test = this.test 
         train['Age'] = train['Age'].fillna(-0.5)
         test['Age'] = test['Age'].fillna(-0.5)
-         # age는 뭐라 넣기가 애매함, 그리고 가중치가 크니까 신중해야대 
-        bins = [-1,0,5,12,18,24,35,60, np.inf] #이건 변수명이야 []안에있자나
-        labels= ['Unknown','Baby','Child','Teenager','Student','Young Adult','Adult','Senior']
-        train['AgeGroup'] = pd.cut(train['Age'],bins,labels=labels)
-        test['AgeGroup'] = pd.cut(test['Age'],bins,labels=labels)
-        #이렇게 [] 에서 {}으로 처리하면 labels을 값으로 처리
+         # age 를 평균으로 넣기도 애매하고, 다수결로 넣기도 너무 근거가 없다...
+         # 특히 age 는 생존률 판단에서 가중치(weigth)가 상당하므로 디테일한 접근이 필요합니다.
+         # 나이를 모르는 승객은 모르는 상태로 처리해야 값의 왜곡을 줄일수 있어서 
+         # -0.5 라는 중간값으로 처리했습니다.
+        bins = [-1, 0, 5, 12, 18, 24, 35, 60, np.inf] # 이 파트는 범위를 뜻합니다.
+         # -1 이상 0 미만....60이상 기타 ...
+         # [] 에 있으니 이것은 변수명이겠군요..라고 판단하셨으면 잘 이해한 겁니다.
+        labels = ['Unknown', 'Baby', 'Child', 'Teenager','Student','Young Adult', 'Adult', 'Senior']
+        # [] 은 변수명으로 선언되었음
+        train['AgeGroup'] = pd.cut(train['Age'], bins, labels=labels)
+        test['AgeGroup'] = pd.cut(train['Age'], bins, labels=labels)
+        age_title_mapping = {
+            0: 'Unknown',
+            1: 'Baby',
+            2: 'Child',
+            3: 'Teenager',
+            4: 'Student',
+            5: 'Young Adult',
+            6: 'Adult',
+            7: 'Senior'
+        } # 이렇게 []에서 {} 으로 처리하면 labels 를 값으로 처리하겠네요.
         for x in range(len(train['AgeGroup'])):
-            if train['AgeGroup'][x]=='Unknown':
+            if train['AgeGroup'][x] == 'Unknown':
                 train['AgeGroup'][x] = age_title_mapping[train['Title'][x]]
         for x in range(len(test['AgeGroup'])):
-            if test['AgeGroup'][x]=='Unknown':
+            if test['AgeGroup'][x] == 'Unknown':
                 test['AgeGroup'][x] = age_title_mapping[test['Title'][x]]
-
-        age_title_mapping = {
-            Unknown:0,
-            Baby:1,
-            Child:2,
-            Teenager:3,
-            Student:4,
-            Young Adult:5,
-            Adult:6,
-            Senior:7
-        } 
+        
+        age_mapping = {
+            'Unknown': 0,
+            'Baby': 1,
+            'Child': 2,
+            'Teenager': 3,
+            'Student': 4,
+            'Young Adult': 5,
+            'Adult': 6,
+            'Senior': 7
+        }
         train['AgeGroup'] = train['AgeGroup'].map(age_mapping)
         test['AgeGroup'] = test['AgeGroup'].map(age_mapping)
         this.train = train
-        this.test = test 
-        
+        this.test = test
         return this
     
     @staticmethod
@@ -147,7 +179,38 @@ class Service:
         this.test = this.test.fillna({'Embarked':'S'})
         # ml library assumes class label in Z
         # 교과서 146 문자 blue=0 green=1 red=2 로 치환
-        this.train['Embarked'] = this.train['Embarked'].map({'S':1,'C':2,'Q',3})
-        this.test['Embarked'] = this.test['Embarked'].map({'S':1,'C':2,'Q',3})
+        this.train['Embarked'] = this.train['Embarked'].map({'S':1,'C':2,'Q':3})
+        this.test['Embarked'] = this.test['Embarked'].map({'S':1,'C':2,'Q':3})
         # ordinal 아님
         return this
+
+    # MachineLearning 중 dtree,rforest,nb,knn,svm 사용
+
+    @staticmethod
+    def create_k_fold():
+        return KFold(n_splits = 10, shuffle = True, random_state=0)
+
+    def accuracy_by_dtree(self,this):
+        dtree = DecisionTreeClassifier()
+        score = cross_val_score(dtree, this.train, this.label, cv = Service.create_k_fold(), n_jobs=1, scoring='accuracy')
+        return round(np.mean(score)*100,2)
+        
+    def accuracy_by_rforest(self,this):
+        rforest = RandomForestClassifier()
+        score = cross_val_score(rforest, this.train, this.label, cv = Service.create_k_fold(), n_jobs=1, scoring='accuracy')
+        return round(np.mean(score)*100,2)
+        
+    def accuracy_by_nb(self,this):
+        nb = GaussianNB()
+        score = cross_val_score(nb, this.train, this.label, cv = Service.create_k_fold(), n_jobs=1, scoring='accuracy')
+        return round(np.mean(score)*100,2)
+        
+    def accuracy_by_knn(self,this):
+        knn = KNeighborsClassifier()
+        score = cross_val_score(knn, this.train, this.label, cv = Service.create_k_fold(), n_jobs=1, scoring='accuracy')
+        return round(np.mean(score)*100,2)
+        
+    def accuracy_by_svm(self,this):
+        svm = SVC()
+        score = cross_val_score(svm, this.train, this.label, cv = Service.create_k_fold(), n_jobs=1, scoring='accuracy')
+        return round(np.mean(score)*100,2)
