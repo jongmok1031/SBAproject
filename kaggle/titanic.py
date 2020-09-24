@@ -64,7 +64,7 @@ class Service:
     @staticmethod
     def pclass_ordinal(this) ->object:
         return this
-
+        
     @staticmethod
     def name_nominal(this)->object:
         return this
