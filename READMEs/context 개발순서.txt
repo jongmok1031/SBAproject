@@ -1,0 +1,30 @@
+context : object ( class= static, instance = dynamic)
+
+Agile <-> Waterfall
+
+MVC 패턴 구조에서 개발을 합니다
+
+Model *.py + TF (sklearn, keras tf안에 다 녹아잇어) 
+View reactjs
+Controller app.py Flask
+Database : mariadb
+Server : AWS
+
+1. 개발환경 설정
+1.1 model 개발환경 완료
+1.2 view 개발한경 완료
+1.3 controller 개발환경 완료: 
+
+content 를 투입... context 
+
+이제 modeling 환경세팅 끝
+view 환경세팅 끝
+이걸 연결할 network setting
+(((((((((((((((((((((((((((((((((
+cabbage하면서 step 2로..
+)))))))))))))))))))))))))))))))))
+
+step 2목표
+1 model : python oop 에서 reuse 고민
+2 view: react 에서 입력한 데이터를 주고, flask 가 보낸 대답 출력
+3 controller: flask 에서 react가 보낸 데이터 받아서 python 모델이 주고, 그 예상값다시 react 전달

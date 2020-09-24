@@ -1,6 +1,7 @@
 import sys
 sys.path.insert(0,'/Users/jongm/SBAprojects')
-from titanic.entity import Entity
+from util.file_handler import FileReader
+
 import pandas as pd
 import numpy as np 
 
@@ -16,6 +17,9 @@ from sklearn.model_selection import KFold   # k 값은 count의 의미
 from sklearn.model_selection import cross_val_score
 # dtree,rforest,nb,knn,svm
 """
+context path : /Users/jongm/SBAprojects
+fname : /kaggle/data/
+
 PassengerId  고객ID, @@@문제
 Survived 생존여부,  @@@답
 
@@ -34,11 +38,11 @@ Embarked 승선한 항구명 C = 쉐브루, Q = 퀸즈타운, S = 사우스햄�
 
 class Service:
     def __init__(self):
-        self.entity = Entity()
-    
-    def new_model(self,payload):
-        this = self.entity
+        self.fileReader = FileReader()
 
+    def new_model(self,payload):
+        this = self.fileReader
+        this.context = '/Users/jongm/SBAprojects/kaggle/data/'
         this.fname = payload
         return pd.read_csv(this.context + this.fname)   # 교과서 p.139  df = tensor
 
@@ -214,3 +218,77 @@ class Service:
         svm = SVC()
         score = cross_val_score(svm, this.train, this.label, cv = Service.create_k_fold(), n_jobs=1, scoring='accuracy')
         return round(np.mean(score)*100,2)
+
+
+
+class Controller:
+    def __init__(self):
+        self.service = Service()
+        self.fileReader = FileReader()
+ 
+    def modeling(self,train,test):
+        service = self.service
+        this = self.preprocessing(train,test)
+        print(f'훈련 컬럼 : {this.train.columns}')
+        this.label = service.create_label(this)
+        this.train = service.create_train(this)
+        return this
+
+    def preprocessing(self,train,test):
+        service = self.service
+        this = self.fileReader
+        this.train = service.new_model(train)  #payload
+        this.test = service.new_model(test)  #payload
+        this.id = this.test['PassengerId'] #machine에게 question이됌
+        print(f'드롭 전 변수: {this.train.columns}')
+        this = service.drop_feature(this, 'Cabin')
+        this = service.drop_feature(this, 'Ticket')
+        print(f'드롭 후 변수: {this.train.columns}')
+
+
+        this = service.embarked_nominal(this)
+        print(f'승선한 항구 정제결과:\n{this.train.head()}')
+        this = service.title_nominal(this)
+        print(f'타이틀 정제결과:\n{this.train.head()}')
+        # name변수에서 title을 추출했으니 name은 필요가 없어짐
+        # str이니, 후에 ML-lib 가 이를 인식하는 과정에서 에러낼꺼임
+        # 삭제해야댐
+        this = service.drop_feature(this, 'Name')
+        this = service.drop_feature(this, 'PassengerId')
+        this = service.age_ordinal(this)
+        print(f'나이 정제결과: \n {this.train.head()}')
+        this = service.sex_nominal(this)
+        print(f'성별 정제결과: \n {this.train.head()}')
+        this = service.fareBand_nominal(this)
+        print(f'요금 정제결과: \n {this.train.head()}')
+        this = service.drop_feature(this, 'Fare')
+        print(f'전체 정제결과: \n {this.train.head()}')
+        print(f'train na 체크: \n {this.train.isnull().sum()}')
+        print(f'test na 체크: \n {this.test.isnull().sum()}')
+
+        return this
+
+    def learning(self,train,test):
+        service = self.service
+        this = self.modeling(train,test)
+        print('=====================  Learning 결과 ===================')
+        print(f'결정트리 검증결과: {service.accuracy_by_dtree(this)}')
+        print(f'램덤포레스트 검증결과: {service.accuracy_by_rforest(this)}')
+        print(f'나이브베이즈 검증결과: {service.accuracy_by_nb(this)}')
+        print(f'knn 검증결과: {service.accuracy_by_knn(this)}')
+        print(f'svm 검증결과: {service.accuracy_by_svm(this)}')
+        ##########여기까지 모델링
+
+    def submit(self, train, test): #machine이 된다. 캐글에게 내 머신을 보내서 평가받는것
+        this = self.modeling(train,test)
+        clf = RandomForestClassifier()
+        clf.fit(this.train, this.label)
+        prediction = clf.predict(this.test)
+        pd.DataFrame(
+            {'PassengerId' : this.id, 'Survived' : prediction}
+        ).to_csv( '/Users/jongm/SBAprojects/kaggle/data/' + 'submission.csv', index=False)
+
+
+if __name__ =='__main__':
+    ctrl = Controller()
+    ctrl.submit('train.csv','test.csv')
