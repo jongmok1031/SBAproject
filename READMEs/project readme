@@ -1,0 +1,9 @@
+member
+
+crud create read update delete
+
+restful : post get put delete
+
+sql : insert, select, update, delete
+member: join, login,  update remove
+movie : register, search, update remove

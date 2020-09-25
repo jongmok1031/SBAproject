@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 '''
 context path : /Users/jongm/SBAprojects
-fname : /titanic/data
+fname : /kaggle/data
 '''
 @dataclass
 class FileReader:
     context: str = ''
-    filename: str = ''
+    fname: str = ''
     train : object = None
     test : object = None
     id : str = ''
