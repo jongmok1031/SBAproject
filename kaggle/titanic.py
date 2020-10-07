@@ -1,10 +1,16 @@
-import sys
-sys.path.insert(0,'/Users/jongm/SBAprojects')
-from util.file_handler import FileReader
 
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+basedir = os.path.dirname(os.path.abspath(__file__))
+from util.file_handler import FileReader
+# from config import basedir
 import pandas as pd
 import numpy as np 
-
+from config import basedir
 # sklearn algo: classification, regression, clustering, dim-reduction, 
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -39,12 +45,14 @@ Embarked 승선한 항구명 C = 쉐브루, Q = 퀸즈타운, S = 사우스햄�
 class Service:
     def __init__(self):
         self.fileReader = FileReader()
+        self.kaggle = os.path.join(basedir, 'kaggle')
+        self.data = os.path.join(self.kaggle, 'data')
 
     def new_model(self,payload):
         this = self.fileReader
-        this.context = '/Users/jongm/SBAprojects/kaggle/data/'
+        this.data = self.data 
         this.fname = payload
-        return pd.read_csv(this.context + this.fname)   # 교과서 p.139  df = tensor
+        return pd.read_csv(os.path.join(self.data, this.fname))   # 교과서 p.139  df = tensor
 
     @staticmethod 
     def create_train(this) -> object :
@@ -223,9 +231,11 @@ class Service:
 
 class Controller:
     def __init__(self):
-        self.service = Service()
         self.fileReader = FileReader()
- 
+        self.kaggle = os.path.join(basedir, 'kaggle')
+        self.data = os.path.join(self.kaggle, 'data')
+        self.service = Service()
+
     def modeling(self,train,test):
         service = self.service
         this = self.preprocessing(train,test)
@@ -286,9 +296,10 @@ class Controller:
         prediction = clf.predict(this.test)
         pd.DataFrame(
             {'PassengerId' : this.id, 'Survived' : prediction}
-        ).to_csv( '/Users/jongm/SBAprojects/kaggle/data/' + 'submission.csv', index=False)
+        ).to_csv( os.path.join(self.data, 'submission.csv'), index=False)
 
 
 if __name__ =='__main__':
+    print(f'*********************{basedir}*************')
     ctrl = Controller()
     ctrl.submit('train.csv','test.csv')
