@@ -12,6 +12,16 @@ class Tokenizer():
     def __init__(self):
         self.okt = Okt()
         pass
+
+    def hook_process(self):
+        #df = wc.webdata_toCsv(urls)
+        wc.add_sentiment(df)
+        self.get_data()
+
+    def get_data(self):
+        review_data = pd.read_csv(os.path.join(basedir,  '앱리뷰csv파일.csv'))
+        print(review_data.head())
+        return review_data
  
     def tokenize(self,df):
         df = pd.read_csv(os.path.join(basedir,'앱리뷰csv파일.csv'), encoding = 'utf-8')

@@ -84,7 +84,7 @@ class WebCrawler():
         return df
 
     def get_data(self):
-        review_data = pd.read_csv(os.path.join(basedir, 'saved_data', '앱리뷰csv파일.csv'))
+        review_data = pd.read_csv(os.path.join(basedir,  '앱리뷰csv파일.csv'))
         print(review_data.head())
         return review_data
 
