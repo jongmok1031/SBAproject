@@ -18,8 +18,10 @@ class WebCrawler():
         self.reviews = []
     
     def hook_process(self):
-        #df = wc.webdata_toCsv(urls)
-        wc.add_sentiment(df)
+        df = wc.webdata_toCsv(urls)
+        self.add_sentiment(df)
+        self.stopwords()
+
         self.get_data()
          
 
@@ -87,6 +89,16 @@ class WebCrawler():
         review_data = pd.read_csv(os.path.join(basedir,  '앱리뷰csv파일.csv'))
         print(review_data.head())
         return review_data
+
+    def stopwords(self):
+        f= open('불용어.txt','r', encoding='utf8')
+        stopwords = f.read()
+        f.close()
+        return stopwords
+    
+    def remove_stopwords(self,df):
+        df = self.webdata_toCsv
+        
 
 urls = ['https://play.google.com/store/apps/details?id=com.taling&showAllReviews=true',
 'https://play.google.com/store/apps/details?id=com.mo.kosaf&showAllReviews=true',

@@ -6,28 +6,34 @@ basedir = os.path.dirname(os.path.abspath(__file__))
 import pandas as pd 
 import numpy as np
 from konlpy.tag import Okt
+# from konlpy.tag import Kkma 시간 오래걸려
 
 
 class Tokenizer():
     def __init__(self):
-        self.okt = Okt()
-        pass
+        self.okt = Okt() 
+        
+    def stopwords(self):
+        f= open('불용어.txt','r', encoding='utf8')
+        stopwords = f.read()
+        f.close()
+        return stopwords
 
     def hook_process(self):
-        #df = wc.webdata_toCsv(urls)
-        wc.add_sentiment(df)
-        self.get_data()
-
+        df = self.get_data()
+        self.tokenize(df)
+        
     def get_data(self):
         review_data = pd.read_csv(os.path.join(basedir,  '앱리뷰csv파일.csv'))
-        print(review_data.head())
-        return review_data
+        return review_data.head(5)
  
     def tokenize(self,df):
-        df = pd.read_csv(os.path.join(basedir,'앱리뷰csv파일.csv'), encoding = 'utf-8')
-        print(self.okt.pos(df['review'][1]))
+        df = self.get_data()
+        for line in df['review']:
+            print(self.okt.pos(line))  
+        # return (self.okt.pos(line))
 
 if __name__ == "__main__":
-    tk = Tokenizer()
-    df = pd.read_csv(os.path.join(basedir,'앱리뷰csv파일.csv'), encoding = 'utf-8')
-    tk.tokenize(df)
+    Tk = Tokenizer()
+    Tk.hook_process()
+    stopwords = Tk.stopwords()
