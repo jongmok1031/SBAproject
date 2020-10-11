@@ -17,33 +17,19 @@ class Tokenizer():
         self.wordtoken_list = []
         self.reader = FileReader()
         self.okt = Okt()
-        self.df = self.get_data()
+        self.df = self.get_data() 
 
     def hook_process(self): 
         df = self.df
         self.stopwords = self.get_stopwords()
-        self.word_tokens = self.tokenize(df)
-        
+        word_tokens = self.tokenize(df)
+        print(word_tokens)
+
     def get_stopwords(self):
         f= open('불용어.txt','r', encoding='utf8')
         stopwords = f.read()
         f.close()
         return stopwords
-    
-    def remove_stopwords(self, word_tokens):
-        word_tokens = self.word_tokens
-        stopwords = self.stopwords
-        
-        print('-===================')
-        print(word_tokens)
-        print('-===================')
-        for morphset in word_tokens:
-            print(morphset)
-            print('123')
-        #     for morph in morphset:
-        #         if morph in stopwords:
-        #             morphset.remove(morph)
-        # return word_tokens
 
 
     def get_data(self): 
@@ -56,9 +42,15 @@ class Tokenizer():
  
     def tokenize(self,df):
         df = self.df
+        wordtoken_list = self.wordtoken_list
         for line in df['review']:
-            print(self.okt.morphs(line))  
-        return (self.okt.morphs(line))
+            onereview=[]
+            word_tokens = self.okt.morphs(line)
+            for word in word_tokens:
+                if word not in self.stopwords:
+                    onereview.append(word)
+            wordtoken_list.append(onereview)
+        return wordtoken_list
 
 if __name__ == "__main__":
     Tk = Tokenizer()
